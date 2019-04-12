@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	var port = flag.String("port", "3000", "Port to run this service on")
+	var port = flag.String("port", "3001", "Port to run this service on")
 
 	flag.Parse()
 
