@@ -33,8 +33,21 @@ func (_ *Auth) Login(credentials auth.Credentials, tokenString *string) (err err
 	return
 }
 
-func (_ *Auth) New(credentials auth.Credentials, tokenString *string) (err error) {
+func (_ *Auth) Register(cred auth.Credentials, result *string) (err error) {
 
-	*tokenString, err = auth.AddNewUser(credentials)
+	*result, err = auth.Register(cred)
+	return nil
+}
+
+func (_ *Auth) ValidateNewUsername(username [1]string, result *string) error {
+
+	err := auth.ValidateNewUsername(username[0])
+	if err != nil {
+		if err == auth.ErrUserExists {
+			*result = err.Error()
+			return nil
+		}
+		return err
+	}
 	return nil
 }

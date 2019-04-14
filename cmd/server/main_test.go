@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/fpawel/mproducto/internal/api"
 	"github.com/fpawel/mproducto/internal/auth"
 	"github.com/powerman/rpc-codec/jsonrpc2"
 	"log"
@@ -17,11 +16,6 @@ func TestRpcClient(t *testing.T) {
 	err := c.Call("Auth.Login", auth.Credentials{"user1", "password1"}, &reply)
 	log.Println(reply, err)
 
-	var i api.UserInfo
-	err = c.Call("Auth.UserInfo", [1]string{reply}, &i)
-	log.Println(i, err)
-
-	i = api.UserInfo{}
-	err = c.Call("Auth.UserInfo", [1]string{"??"}, &i)
-	log.Println(i, err)
+	log.Println(c.Call("Auth.ValidateNewUsername", [1]string{"user1"}, &reply), reply)
+	log.Println(c.Call("Auth.ValidateNewUsername", [1]string{"user3"}, &reply), reply)
 }

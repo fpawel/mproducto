@@ -8,14 +8,14 @@ import (
 
 var (
 	ErrUnauthorized = errors.New("unauthorized")
-	ErrUserExists   = errors.New("user already exists")
+	ErrUserExists   = errors.New("пользователь с таким именем уже зарегестрирован")
 
 	// the JWT key used to create the signature
 	jwtKey = []byte("my_secret_key")
 
 	users = map[string]string{
-		"user1": "password1",
-		"user2": "password2",
+		"userName1": "password1",
+		"userName2": "password2",
 	}
 )
 
@@ -32,6 +32,15 @@ type UsernameClaims struct {
 	jwt.StandardClaims
 }
 
+func Register(credentials Credentials) (string, error) {
+	if _, exists := users[credentials.Username]; exists {
+		return "", ErrUserExists
+	}
+	users[credentials.Username] = credentials.Password
+
+	return jwtTokenizeUserName(credentials.Username)
+}
+
 func Login(credentials Credentials) (string, error) {
 	if expectedPassword, ok := users[credentials.Username]; !ok || expectedPassword != credentials.Password {
 		return "", ErrUnauthorized
@@ -39,12 +48,11 @@ func Login(credentials Credentials) (string, error) {
 	return jwtTokenizeUserName(credentials.Username)
 }
 
-func AddNewUser(credentials Credentials) (string, error) {
-	if _, exists := users[credentials.Username]; exists {
-		return "", ErrUserExists
+func ValidateNewUsername(username string) error {
+	if _, exists := users[username]; exists {
+		return ErrUserExists
 	}
-	users[credentials.Username] = credentials.Password
-	return jwtTokenizeUserName(credentials.Username)
+	return nil
 }
 
 func ParseUsernameFromJwtToken(tokenString string) (*UsernameClaims, error) {
