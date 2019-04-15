@@ -13,13 +13,13 @@ CREATE TABLE IF NOT EXISTS credential
     email         TEXT               NOT NULL,
     user_role     USER_ROLE          NOT NULL,
 
-    CONSTRAINT proper_email CHECK (email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$'),
     CONSTRAINT unique_email UNIQUE (email),
     CONSTRAINT unique_name UNIQUE (name),
-    CONSTRAINT proper_name CHECK ( char_length(name) BETWEEN 5 AND 20 ),
-    CONSTRAINT proper_pass CHECK ( char_length(pass) BETWEEN 5 AND 20 )
+    CONSTRAINT proper_name CHECK ( name ~* '^[A-Za-z0-9_\-]{6,20}$' ),
+    CONSTRAINT proper_pass CHECK ( pass ~* '^[A-Za-z0-9_\-]{8,20}$' ),
+    CONSTRAINT proper_email CHECK (email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
 );
 
 INSERT INTO credential(name, pass, email, user_role)
-VALUES ('pawel', '11111', 'binf1611@gmail.com', 'admin'),
-       ('alexey', '22222', 'zorchenkov@gmail.com', 'admin');
+VALUES ('pawel1', '11111111', 'binf1611@gmail.com', 'admin'),
+       ('alexey', '22222222', 'zorchenkov@gmail.com', 'admin');

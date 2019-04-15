@@ -1,53 +1,28 @@
 package api
 
 import (
-	"github.com/fpawel/mproducto/internal/auth"
+	"github.com/fpawel/mproducto/internal/data"
+	"github.com/jmoiron/sqlx"
 )
 
 type Auth struct {
+	DB *sqlx.DB
 }
 
-type UserInfo struct {
-	Username string `json:"username"`
-	Auth     bool   `json:"auth"`
-}
-
-func (_ *Auth) UserInfo(tokenString [1]string, info *UserInfo) (err error) {
-	c, err := auth.ParseUsernameFromJwtToken(tokenString[0])
-	if err == auth.ErrUnauthorized {
-		return nil
-	}
+func (svc *Auth) Login(cred data.Cred, token *string) error {
+	username, err := data.VerifyCredentials(svc.DB, cred)
 	if err != nil {
 		return err
 	}
-	if c == nil {
-		panic("unexpected")
-	}
-	info.Auth = true
-	info.Username = c.Username
-	return
+	*token, err = jwtTokenizeUsername(username)
+	return err
 }
 
-func (_ *Auth) Login(credentials auth.Credentials, tokenString *string) (err error) {
-	*tokenString, err = auth.Login(credentials)
-	return
-}
-
-func (_ *Auth) Register(cred auth.Credentials, result *string) (err error) {
-
-	*result, err = auth.Register(cred)
-	return nil
-}
-
-func (_ *Auth) ValidateNewUsername(username [1]string, result *string) error {
-
-	err := auth.ValidateNewUsername(username[0])
+func (svc *Auth) Register(user data.User, token *string) error {
+	err := data.RegisterUser(svc.DB, user)
 	if err != nil {
-		if err == auth.ErrUserExists {
-			*result = err.Error()
-			return nil
-		}
 		return err
 	}
-	return nil
+	*token, err = jwtTokenizeUsername(user.Name)
+	return err
 }
