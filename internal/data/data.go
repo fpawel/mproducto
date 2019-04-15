@@ -31,6 +31,17 @@ func NewConnectionDB(c Config) (*sqlx.DB, error) {
 	return sqlx.NewDb(conn, "postgres"), nil
 }
 
+func GetCredentialsByName(db *sqlx.DB, name string) (cred Cred, err error) {
+	err = db.Get(&cred,
+		`SELECT * FROM credential WHERE (name = $1 OR email = $1) AND pass = $2`,
+		cred.Name, cred.Pass)
+	if err == sql.ErrNoRows {
+		err = ErrWrongCred
+		return
+	}
+	return
+}
+
 func VerifyCredentials(db *sqlx.DB, cred Cred) (name string, err error) {
 	err = db.Get(&name,
 		`SELECT name FROM credential WHERE (name = $1 OR email = $1) AND pass = $2`,
