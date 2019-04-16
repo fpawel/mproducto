@@ -15,9 +15,18 @@ type Config struct {
 	Pass string
 }
 
+type UserProfile struct {
+	UserID int64  `db:"user_id"`
+	Name   string `db:"name"`
+	Pass   string `db:"pass"`
+	Email  string `db:"email"`
+	Role   string `db:"user_role"`
+}
+
 var (
-	ErrUserExists = errors.New("пользователь с таким именем уже зарегестрирован")
-	ErrWrongCred  = errors.New("не верное имя пользователя или пароль")
+	ErrUserExists      = errors.New("пользователь с таким именем уже зарегестрирован")
+	ErrWrongCred       = errors.New("не верное имя пользователя или пароль")
+	ErrWrongUserIDPass = errors.New("не верный идентификатор пользователя или пароль")
 )
 
 func NewConnectionDB(c Config) (*sqlx.DB, error) {
@@ -31,10 +40,21 @@ func NewConnectionDB(c Config) (*sqlx.DB, error) {
 	return sqlx.NewDb(conn, "postgres"), nil
 }
 
-func GetCredentialsByName(db *sqlx.DB, name string) (cred Cred, err error) {
-	err = db.Get(&cred,
-		`SELECT * FROM credential WHERE (name = $1 OR email = $1) AND pass = $2`,
-		cred.Name, cred.Pass)
+func VerifyUserID(db *sqlx.DB, userID int64, pass string) (user UserProfile, err error) {
+	err = db.Get(&user,
+		`SELECT * FROM user_profile WHERE user_id = $1 AND pass = $2`,
+		userID, pass)
+	if err == sql.ErrNoRows {
+		err = ErrWrongUserIDPass
+		return
+	}
+	return
+}
+
+func VerifyCredentials(db *sqlx.DB, name, pass string) (user UserProfile, err error) {
+	err = db.Get(&user,
+		`SELECT * FROM user_profile WHERE (name = $1 OR email = $1) AND pass = $2`,
+		name, pass)
 	if err == sql.ErrNoRows {
 		err = ErrWrongCred
 		return
@@ -42,20 +62,8 @@ func GetCredentialsByName(db *sqlx.DB, name string) (cred Cred, err error) {
 	return
 }
 
-func VerifyCredentials(db *sqlx.DB, cred Cred) (name string, err error) {
-	err = db.Get(&name,
-		`SELECT name FROM credential WHERE (name = $1 OR email = $1) AND pass = $2`,
-		cred.Name, cred.Pass)
-	if err == sql.ErrNoRows {
-		err = ErrWrongCred
-		return
-	}
-	return
-}
-
-func RegisterUser(db *sqlx.DB, user User) error {
-	_, err := db.Exec(
-		`INSERT INTO credential(name, email, pass, user_role) VALUES ($1,$2,$3,$4)`,
-		user.Name, user.Email, user.Pass, user.Role)
-	return err
+func RegisterUser(db *sqlx.DB, user *UserProfile) error {
+	return db.QueryRow(
+		`INSERT INTO user_profile(name, email, pass, user_role) VALUES ($1,$2,$3,$4) RETURNING user_id`,
+		user.Name, user.Email, user.Pass, user.Role).Scan(&user.UserID)
 }

@@ -17,33 +17,35 @@ var (
 
 // Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
-type usernameClaims struct {
-	Username string `json:"username"`
+type idPassClaims struct {
+	ID   int64
+	Pass string
 	jwt.StandardClaims
 }
 
-func jwtParseUsername(tokenString string) (string, error) {
-	claims := new(usernameClaims)
+func jwtParseIdPass(tokenString string) (int64, string, error) {
 
+	claims := new(idPassClaims)
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
 
 	if !token.Valid {
-		return "", ErrUnauthorized
+		return 0, "", ErrUnauthorized
 	}
-	return claims.Username, nil
+	return claims.ID, claims.Pass, nil
 }
 
-func jwtTokenizeUsername(userName string) (string, error) {
-	expirationTime := time.Now().Add(30 * time.Minute)
-	claims := &usernameClaims{
-		Username: userName,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+func jwtTokenizeIdPass(userID int64, pass string) (string, error) {
+
+	claims := &idPassClaims{
+		userID,
+		pass,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(30 * time.Minute).Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

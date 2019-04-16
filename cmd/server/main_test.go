@@ -1,21 +1,52 @@
 package main
 
 import (
-	"github.com/fpawel/mproducto/internal/data"
+	"github.com/fpawel/mproducto/internal/api"
 	"github.com/powerman/rpc-codec/jsonrpc2"
 	"log"
 	"testing"
 )
 
-func TestRpcClient(t *testing.T) {
-	c := jsonrpc2.NewHTTPClient("http://localhost:3001/rpc")
-	defer c.Close()
+func TestNewUser(t *testing.T) {
+	var (
+		token   string
+		profile api.AuthProfileResult
+	)
 
-	// Synchronous call using positional params and HTTP.
-	var reply string
-	err := c.Call("Auth.Login", data.Cred{"user1", "password1"}, &reply)
-	log.Println(reply, err)
+	newUser := api.AuthRegisterArg{Name: "newuser112", Email: "binf1611@.mailnnu.ru", Pass: "wtf111222333444"}
 
-	err = c.Call("Auth.Login", data.Cred{"alexey", "22222222"}, &reply)
-	log.Println(reply, err)
+	if err := cli.Call("Auth.Register", newUser, &token); err != nil {
+		t.Error(err)
+	}
+	log.Println("new user token:", token)
+
+	if err := cli.Call("Auth.Profile", [1]string{token}, &profile); err != nil {
+		t.Error(err)
+	}
+	log.Println("new user profile:", profile)
+
+	if err := cli.Call("Auth.Unregister", [1]string{token}, new(struct{})); err != nil {
+		t.Error("new user delete: ", err)
+	} else {
+		log.Println("new user delete - OK ")
+	}
+
 }
+
+func TestAuthLoginAndProfile(t *testing.T) {
+	var token string
+	err := cli.Call("Auth.Login", api.AuthLoginArg{"pawel1", "11111111"}, &token)
+	if err != nil {
+		t.Error(err)
+	}
+	log.Println("TOKEN:", token)
+
+	var profile api.AuthProfileResult
+
+	if err = cli.Call("Auth.Profile", [1]string{token}, &profile); err != nil {
+		t.Error(err)
+	}
+	log.Println("PROFILE:", profile)
+}
+
+var cli = jsonrpc2.NewHTTPClient("http://localhost:3001/rpc")

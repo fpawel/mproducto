@@ -5,9 +5,9 @@ DO $$
         WHEN duplicate_object THEN NULL;
     END $$;
 
-CREATE TABLE IF NOT EXISTS credential
+CREATE TABLE IF NOT EXISTS user_profile
 (
-    credential_id SERIAL PRIMARY KEY NOT NULL,
+    user_id SERIAL PRIMARY KEY NOT NULL,
     name          TEXT               NOT NULL,
     pass          TEXT               NOT NULL,
     email         TEXT               NOT NULL,
@@ -20,6 +20,6 @@ CREATE TABLE IF NOT EXISTS credential
     CONSTRAINT proper_email CHECK (email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
 );
 
-INSERT INTO credential(name, pass, email, user_role)
+INSERT INTO user_profile(name, pass, email, user_role)
 VALUES ('pawel1', '11111111', 'binf1611@gmail.com', 'admin'),
-       ('alexey', '22222222', 'zorchenkov@gmail.com', 'admin');
+       ('alexey', '22222222', 'zorchenkov@gmail.com', 'admin') ON CONFLICT DO NOTHING ;
