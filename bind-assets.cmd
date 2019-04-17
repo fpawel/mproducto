@@ -1,0 +1,1 @@
+go-bindata-assetfs --pkg=assets --o=./internal/assets/bindata.go --prefix="C:/Frontend/wproducto/build/" "C:/Frontend/wproducto/build/..."

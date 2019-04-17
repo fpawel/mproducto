@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fpawel/mproducto/internal/api"
+	"github.com/fpawel/mproducto/internal/assets"
 	"github.com/fpawel/mproducto/internal/data"
 	"github.com/gorilla/handlers"
 	"github.com/powerman/rpc-codec/jsonrpc2"
@@ -11,28 +12,36 @@ import (
 	"net/http"
 	"net/rpc"
 	"os"
+	"strings"
 )
 
 func main() {
 
-	var (
-		host  = flag.String("host", "localhost", "Host to run this service on")
-		port  = flag.Int("port", 3001, "Port to run this service on")
-		dbCfg data.Config
-	)
-
-	flag.IntVar(&dbCfg.Port, "pgport", 5432, "Postgres port")
-	flag.StringVar(&dbCfg.Host, "pghost", "localhost", "Postgres host")
-	flag.StringVar(&dbCfg.User, "pguser", "postgres", "Postgres user")
-	flag.StringVar(&dbCfg.Pass, "pgpass", "", "Postgres password")
+	var arg struct {
+		Host   string
+		Port   int
+		Cors   bool
+		Pg     data.PgConfig
+		Public string
+	}
+	flag.StringVar(&arg.Public, "public", "embedded", "Path to public directory or \"embedded\"")
+	flag.BoolVar(&arg.Cors, "cors", false, "Enable CORS")
+	flag.StringVar(&arg.Host, "host", "localhost", "Host to run this service on")
+	flag.IntVar(&arg.Port, "port", 3001, "Port to run this service on")
+	flag.IntVar(&arg.Pg.Port, "pg-port", 5432, "Postgres port")
+	flag.StringVar(&arg.Pg.Host, "pg-host", "localhost", "Postgres host")
+	flag.StringVar(&arg.Pg.User, "pg-user", "postgres", "Postgres user")
+	flag.StringVar(&arg.Pg.Pass, "pg-pass", "", "Postgres password")
 
 	flag.Parse()
 
-	if len(dbCfg.Pass) == 0 {
+	log.Printf("applied config: %+v\n", arg)
+
+	if len(arg.Pg.Pass) == 0 {
 		log.Fatal("Postgres password must be set")
 	}
 
-	db, err := data.NewConnectionDB(dbCfg)
+	db, err := data.NewConnectionDB(arg.Pg)
 	if err != nil {
 		log.Fatal("data base error: ", err)
 	}
@@ -44,12 +53,25 @@ func main() {
 	rpcMustRegister(&api.Auth{db})
 
 	// Server provide a HTTP transport on /rpc endpoint.
-	http.Handle("/rpc",
-		corsHandler{handlers.LoggingHandler(
-			os.Stdout,
-			jsonrpc2.HTTPHandler(nil))})
+	rpcApiHandler := handlers.LoggingHandler(os.Stdout, jsonrpc2.HTTPHandler(nil))
+	if arg.Cors {
+		rpcApiHandler = corsHandler{rpcApiHandler}
+	}
+	http.Handle("/rpc", rpcApiHandler)
 
-	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", *host, *port), nil); err != nil {
+	var publicHandler http.Handler
+	if strings.ToLower(arg.Public) == "embedded" {
+		publicHandler = http.FileServer(assets.AssetFS())
+	} else {
+		publicHandler = http.StripPrefix(
+			"/", http.FileServer(http.Dir(arg.Public)))
+	}
+
+	http.Handle("/", publicHandler)
+
+	serveURL := fmt.Sprintf("%s:%d", arg.Host, arg.Port)
+	log.Printf("serve URL:  http://%s\n", serveURL)
+	if err := http.ListenAndServe(serveURL, nil); err != nil {
 		log.Fatal(err)
 	}
 }

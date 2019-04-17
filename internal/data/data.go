@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Config struct {
+type PgConfig struct {
 	Port int
 	Host,
 	User,
@@ -29,7 +29,7 @@ var (
 	ErrWrongUserIDPass = errors.New("не верный идентификатор пользователя или пароль")
 )
 
-func NewConnectionDB(c Config) (*sqlx.DB, error) {
+func NewConnectionDB(c PgConfig) (*sqlx.DB, error) {
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=mproducto sslmode=disable",
 		c.Host, c.Port, c.User, c.Pass)
 
