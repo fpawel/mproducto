@@ -48,11 +48,12 @@ func main() {
 	rpcMustRegister(&api.Auth{db})
 
 	// Server provide a HTTP transport on /rpc endpoint.
-	rpcApiHandler := jsonrpc2.HTTPHandler(nil)
-	rpcApiHandler = handlers.LoggingHandler(os.Stdout, rpcApiHandler)
-	rpcApiHandler = corsHandler{rpcApiHandler}
+	http.Handle("/rpc", corsHandler{
+		handlers.LoggingHandler(
+			os.Stdout,
+			jsonrpc2.HTTPHandler(nil)),
+	})
 
-	http.Handle("/rpc", rpcApiHandler)
 	serveURL := fmt.Sprintf("%s:%d", arg.Host, arg.Port)
 	log.Printf("serve URL:  http://%s\n", serveURL)
 	if err := http.ListenAndServe(serveURL, nil); err != nil {
