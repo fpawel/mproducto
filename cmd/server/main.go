@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fpawel/mproducto/internal/api"
+	"github.com/fpawel/mproducto/internal/assets"
 	"github.com/fpawel/mproducto/internal/data"
 	"github.com/gorilla/handlers"
 	"github.com/powerman/rpc-codec/jsonrpc2"
@@ -53,6 +54,9 @@ func main() {
 			os.Stdout,
 			jsonrpc2.HTTPHandler(nil)),
 	})
+
+	http.Handle("/", http.StripPrefix(
+		"/", http.FileServer(assets.AssetFS())))
 
 	serveURL := fmt.Sprintf("%s:%d", arg.Host, arg.Port)
 	log.Printf("serve URL:  http://%s\n", serveURL)
