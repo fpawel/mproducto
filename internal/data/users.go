@@ -3,17 +3,11 @@ package data
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+
 )
 
-type PgConfig struct {
-	Port int
-	Host,
-	User,
-	Pass string
-}
+
 
 type UserProfile struct {
 	UserID int64  `db:"user_id"`
@@ -29,16 +23,7 @@ var (
 	ErrWrongUserIDPass = errors.New("не верный идентификатор пользователя или пароль")
 )
 
-func NewConnectionDB(c PgConfig) (*sqlx.DB, error) {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=mproducto sslmode=disable",
-		c.Host, c.Port, c.User, c.Pass)
 
-	conn, err := sql.Open("postgres", connStr)
-	if err != nil {
-		return nil, err
-	}
-	return sqlx.NewDb(conn, "postgres"), nil
-}
 
 func VerifyUserID(db *sqlx.DB, userID int64, pass string) (user UserProfile, err error) {
 	err = db.Get(&user,

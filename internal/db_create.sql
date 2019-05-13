@@ -23,3 +23,27 @@ CREATE TABLE IF NOT EXISTS user_profile
 INSERT INTO user_profile(name, pass, email, user_role)
 VALUES ('pawel1', '11111111', 'binf1611@gmail.com', 'admin'),
        ('alexey', '22222222', 'zorchenkov@gmail.com', 'admin') ON CONFLICT DO NOTHING ;
+
+
+CREATE TABLE IF NOT EXISTS product
+(
+    product_id SERIAL PRIMARY KEY NOT NULL,
+    code_sap INTEGER NOT NULL,
+    name1 TEXT NOT NULL,
+    pack_amount INTEGER NOT NULL,
+    status_sap TEXT,
+    code1 BIGINT,
+    code2 BIGINT,
+    name2 TEXT NOT NULL,
+    barcode_piece BIGINT,
+    barcode_group BIGINT,
+    subgroup_id INTEGER NOT NULL,
+    subgroup TEXT NOT NULL,
+    hierarchy_level1 TEXT NOT NULL,
+    hierarchy_level2 TEXT NOT NULL,
+    hierarchy_level3 TEXT NOT NULL,
+    hierarchy_level4 TEXT NOT NULL,
+    hierarchy_level5 TEXT NOT NULL,
+    hierarchy_level6 TEXT NOT NULL,
+    hierarchy_level7 TEXT NOT NULL
+);
