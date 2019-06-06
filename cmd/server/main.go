@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/fpawel/mproducto/internal/api"
 	"github.com/fpawel/mproducto/internal/assets"
 	"github.com/fpawel/mproducto/internal/data"
+	"github.com/fpawel/mproducto/internal/rpcapi"
 	"github.com/gorilla/handlers"
 	"github.com/powerman/rpc-codec/jsonrpc2"
 	"log"
@@ -46,10 +46,10 @@ func main() {
 	}()
 
 	// Server export an object of type Auth.
-	rpcMustRegister(&api.Auth{db})
+	rpcMustRegister(&rpcapi.Auth{db})
 
-	// Server provide a HTTP transport on /rpc endpoint.
-	http.Handle("/rpc", corsHandler{
+	// Server provide a HTTP transport on /rpcapi endpoint.
+	http.Handle("/rpcapi", corsHandler{
 		handlers.LoggingHandler(
 			os.Stdout,
 			jsonrpc2.HTTPHandler(nil)),

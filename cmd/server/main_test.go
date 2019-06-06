@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/fpawel/mproducto/internal/api"
+	"github.com/fpawel/mproducto/internal/rpcapi"
 	"github.com/powerman/rpc-codec/jsonrpc2"
 	"log"
 	"testing"
@@ -10,10 +10,10 @@ import (
 func TestNewUser(t *testing.T) {
 	var (
 		token   string
-		profile api.AuthProfileResult
+		profile rpcapi.AuthProfileResult
 	)
 
-	newUser := api.AuthRegisterArg{Name: "newuser112", Email: "binf1611@.mailnnu.ru", Pass: "wtf111222333444"}
+	newUser := rpcapi.AuthRegisterArg{Name: "newuser112", Email: "binf1611@.mailnnu.ru", Pass: "wtf111222333444"}
 
 	if err := cli.Call("Auth.Register", newUser, &token); err != nil {
 		t.Error(err)
@@ -35,13 +35,13 @@ func TestNewUser(t *testing.T) {
 
 func TestAuthLoginAndProfile(t *testing.T) {
 	var token string
-	err := cli.Call("Auth.Login", api.AuthLoginArg{"pawel1", "11111111"}, &token)
+	err := cli.Call("Auth.Login", rpcapi.AuthLoginArg{"pawel1", "11111111"}, &token)
 	if err != nil {
 		t.Error(err)
 	}
 	log.Println("TOKEN:", token)
 
-	var profile api.AuthProfileResult
+	var profile rpcapi.AuthProfileResult
 
 	if err = cli.Call("Auth.Profile", [1]string{token}, &profile); err != nil {
 		t.Error(err)
@@ -49,4 +49,4 @@ func TestAuthLoginAndProfile(t *testing.T) {
 	log.Println("PROFILE:", profile)
 }
 
-var cli = jsonrpc2.NewHTTPClient("http://localhost:3001/rpc")
+var cli = jsonrpc2.NewHTTPClient("http://localhost:3001/rpcapi")

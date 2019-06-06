@@ -1,0 +1,1 @@
+swagger generate server --exclude-main --regenerate-configureapi --target internal/api --api-package op --model-package model --principal app.Auth -A mproducto

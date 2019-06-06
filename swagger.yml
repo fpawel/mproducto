@@ -1,0 +1,71 @@
+swagger: "2.0"
+schemes:
+    - http
+consumes:
+    - application/json
+produces:
+    - application/json
+info:
+    description: Backend service
+    title: Mproducto application
+    version: 0.0.1
+securityDefinitions:
+    api_key:
+        type: apiKey
+        in: header
+        name: API-Key
+security:
+    -
+        api_key: []
+paths:
+    /user:
+        get:
+            summary: Show user profile
+            responses:
+                default: {$ref: '#/responses/Error'}
+                '200':
+                    description: User profile
+                    schema:
+                        $ref: '#/definitions/User'
+
+
+responses:
+    # Return general errors using same model as used by go-swagger for validation errors.
+    Error:
+        description: Error
+        schema:
+            $ref: '#/definitions/Error'
+definitions:
+    # This model should match output of api.ServeError handler, to ensure
+    # errors returned by go-swagger (like failed validation) use same
+    # format as general errors returned by our handlers.
+    # By default api.ServeError = github.com/go-openapi/errors.ServeError.
+    Error:
+        type: object
+        required:
+            - code
+            - message
+        properties:
+            code:
+                description: Either same as HTTP Status Code OR >= 600 with HTTP Status Code 422
+                type: integer
+                format: int32
+            message:
+                type: string
+    User:
+        description: The profile of the user
+        type: object
+        required:
+            - name
+            - email
+        properties:
+            name:
+                type: string
+                description: user name
+                format: string
+            email:
+                type: string
+                description: user email
+                format: string
+
+

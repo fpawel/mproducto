@@ -1,0 +1,1 @@
+swagger init spec --title "Mproducto application" --description "Backend service" --version 1.0.0 --scheme http --consumes application/json --produces application/json
