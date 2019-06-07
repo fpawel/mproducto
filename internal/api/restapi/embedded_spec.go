@@ -33,7 +33,49 @@ func init() {
     "title": "Mproducto application",
     "version": "0.0.1"
   },
+  "host": "localhost:3001",
   "paths": {
+    "/login": {
+      "post": {
+        "security": [],
+        "summary": "Login with user name and password",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "password"
+              ],
+              "properties": {
+                "name": {
+                  "description": "user name",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "valid password",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "api token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
     "/user": {
       "get": {
         "summary": "Show user profile",
@@ -79,13 +121,11 @@ func init() {
       "properties": {
         "email": {
           "description": "user email",
-          "type": "string",
-          "format": "string"
+          "type": "string"
         },
         "name": {
           "description": "user name",
-          "type": "string",
-          "format": "string"
+          "type": "string"
         }
       }
     }
@@ -127,7 +167,52 @@ func init() {
     "title": "Mproducto application",
     "version": "0.0.1"
   },
+  "host": "localhost:3001",
   "paths": {
+    "/login": {
+      "post": {
+        "security": [],
+        "summary": "Login with user name and password",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "password"
+              ],
+              "properties": {
+                "name": {
+                  "description": "user name",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "valid password",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "api token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/user": {
       "get": {
         "summary": "Show user profile",
@@ -176,13 +261,11 @@ func init() {
       "properties": {
         "email": {
           "description": "user email",
-          "type": "string",
-          "format": "string"
+          "type": "string"
         },
         "name": {
           "description": "user name",
-          "type": "string",
-          "format": "string"
+          "type": "string"
         }
       }
     }

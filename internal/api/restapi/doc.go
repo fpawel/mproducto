@@ -7,7 +7,7 @@ Backend service
 
     Schemes:
       http
-    Host: localhost
+    Host: localhost:3001
     BasePath: /
     Version: 0.0.1
 

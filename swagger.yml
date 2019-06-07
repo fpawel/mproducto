@@ -1,6 +1,7 @@
 swagger: "2.0"
 schemes:
     - http
+host: localhost:3001
 consumes:
     - application/json
 produces:
@@ -18,6 +19,32 @@ security:
     -
         api_key: []
 paths:
+    /login:
+        post:
+            security: []   # No security
+            summary: Login with user name and password
+            parameters:
+                -   name:     credentials
+                    in:       body
+                    required: true
+                    schema:
+                        type: object
+                        required:
+                            - name
+                            - password
+                        properties:
+                            name:
+                                type: string
+                                description: user name
+                            password:
+                                type: string
+                                description: valid password
+            responses:
+                default: {$ref: '#/responses/Error'}
+                '201':
+                    description: api token
+                    schema:
+                        type: string
     /user:
         get:
             summary: Show user profile
@@ -62,10 +89,6 @@ definitions:
             name:
                 type: string
                 description: user name
-                format: string
             email:
                 type: string
                 description: user email
-                format: string
-
-

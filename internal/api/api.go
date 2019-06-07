@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"github.com/fpawel/mproducto/internal/api/restapi"
 	"github.com/fpawel/mproducto/internal/api/restapi/op"
 	"github.com/fpawel/mproducto/internal/app"
@@ -40,7 +39,9 @@ func Serve(log *structlog.Logger, application app.App, cfg Config) error {
 	api.Logger = log.Printf
 	api.APIKeyAuth = svc.authenticate
 	api.APIAuthorizer = runtime.AuthorizerFunc(svc.authorize)
-	api.GetUserHandler = op.GetContactsHandlerFunc(svc.getContacts)
+	api.GetUserHandler = op.GetUserHandlerFunc(svc.getUser)
+
+	api.PostLoginHandler = op.PostLoginHandlerFunc(svc.postLogin)
 
 	server := restapi.NewServer(api)
 	defer log.WarnIfFail(server.Shutdown)
@@ -57,16 +58,12 @@ func Serve(log *structlog.Logger, application app.App, cfg Config) error {
 	// but before authentication, binding and validation.
 	middlewares := func(handler http.Handler) http.Handler {
 		accesslog := makeAccessLog(swaggerSpec.BasePath())
+		//reauthenticate := svc.reauthenticate()
+		//return reauthenticate( accesslog(handler) )
 		return accesslog(handler)
 	}
 	server.SetHandler(globalMiddlewares(api.Serve(middlewares)))
 
 	log.Info("protocol", "version", swaggerSpec.Spec().Info.Version)
 	return server.Serve()
-}
-
-func fromRequest(r *http.Request, auth *app.Auth) (context.Context, *structlog.Logger) {
-	ctx := r.Context()
-	log := structlog.FromContext(ctx, nil).SetDefaultKeyvals(def.LogUser, auth.UserID)
-	return ctx, log
 }

@@ -15,17 +15,25 @@ type Log = *structlog.Logger
 
 // Auth describes authentication.
 type Auth struct {
-	Token string
+	UserID int64
+	Pass   string
 }
 
 type User = data.User
 
 // App provides application features service.
 type App interface {
-	User(Ctx, Log, string) (User, error)
-	AddNewUser(Ctx, Log, *User) error
+	GetUser(Ctx, Log, Auth) (User, error)
+	AddNewUser(Ctx, Log, Auth, *User) error
 	Authenticate(string) (*Auth, error)
 	Authorize(Auth) error
+	Login(ctx Ctx, log Log, name, pass string) (token string, err error)
+	Reauthenticate(apiKey string) (string, error)
+}
+
+// New return new application.
+func New(db *sqlx.DB) App {
+	return &app{db}
 }
 
 type app struct {
@@ -33,25 +41,59 @@ type app struct {
 }
 
 func (app *app) Authenticate(apiKey string) (*Auth, error) {
-	_, err := data.GetUserFromToken(app.db, apiKey)
+	userID, pass, err := jwtParseUserClaims(apiKey)
 	if err != nil {
 		return nil, err
 	}
-	return &Auth{Token: apiKey}, nil
+	return &Auth{UserID: userID, Pass: pass}, nil
 }
 
 func (app *app) Authorize(auth Auth) error {
-	_, err := data.GetUserFromToken(app.db, auth.Token)
-	return err
+	user := data.User{
+		UserID: auth.UserID,
+		Pass:   auth.Pass,
+	}
+	return data.GetUserByIDAndPass(app.db, &user)
 }
 
-func (app *app) User(ctx Ctx, log Log, token string) (User, error) {
-	return data.GetUserFromToken(app.db, token)
+func (app *app) GetUser(_ Ctx, _ Log, auth Auth) (User, error) {
+	user := User{
+		UserID: auth.UserID,
+		Pass:   auth.Pass,
+	}
+	user.UserID = auth.UserID
+	user.Pass = auth.Pass
+	if err := data.GetUserByIDAndPass(app.db, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
-func (app *app) AddNewUser(ctx Ctx, log Log, user *User) error {
+func (app *app) AddNewUser(ctx Ctx, log Log, auth Auth, user *User) error {
 	user.Role = "regular_user"
-	return data.RegisterUser(app.db, user)
+	user.UserID = 0
+	return data.AddNewUser(app.db, user)
+}
+
+func (app *app) Login(ctx Ctx, log Log, name, pass string) (string, error) {
+	user := &data.User{
+		Name:  name,
+		Email: name,
+		Pass:  pass,
+	}
+	if err := data.GetUserByNameAndPass(app.db, user); err != nil {
+		return "", err
+	}
+	return jwtTokenizeUserClaims(user.UserID, user.Pass)
+}
+
+func (app *app) Reauthenticate(apiKey string) (string, error) {
+
+	userID, pass, err := jwtParseUserClaims(apiKey)
+	if err != nil {
+		return "", err
+	}
+	return jwtTokenizeUserClaims(userID, pass)
 }
 
 var _ App = (*app)(nil)
