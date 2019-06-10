@@ -19,10 +19,12 @@ type User struct {
 
 	// user email
 	// Required: true
+	// Min Length: 1
 	Email *string `json:"email"`
 
 	// user name
 	// Required: true
+	// Min Length: 1
 	Name *string `json:"name"`
 }
 
@@ -50,12 +52,20 @@ func (m *User) validateEmail(formats strfmt.Registry) error {
 		return err
 	}
 
+	if err := validate.MinLength("email", "body", string(*m.Email), 1); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (m *User) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
+		return err
+	}
+
+	if err := validate.MinLength("name", "body", string(*m.Name), 1); err != nil {
 		return err
 	}
 

@@ -34,6 +34,7 @@ func init() {
     "version": "0.0.1"
   },
   "host": "localhost:3001",
+  "basePath": "/api",
   "paths": {
     "/login": {
       "post": {
@@ -53,21 +54,23 @@ func init() {
               "properties": {
                 "name": {
                   "description": "user name",
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1
                 },
                 "password": {
                   "description": "valid password",
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1
                 }
               }
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "api token",
+          "200": {
+            "description": "The api token of the user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/ApiKey"
             }
           },
           "default": {
@@ -90,10 +93,71 @@ func init() {
             "$ref": "#/responses/Error"
           }
         }
+      },
+      "put": {
+        "security": [],
+        "summary": "Add new user",
+        "parameters": [
+          {
+            "name": "newUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "email",
+                "password"
+              ],
+              "properties": {
+                "email": {
+                  "description": "user email",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "description": "user name",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "password": {
+                  "description": "valid password",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The api token of the new user",
+            "schema": {
+              "$ref": "#/definitions/ApiKey"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/Error"
+          }
+        }
       }
     }
   },
   "definitions": {
+    "ApiKey": {
+      "description": "Valid api key",
+      "type": "object",
+      "required": [
+        "apiKey"
+      ],
+      "properties": {
+        "apiKey": {
+          "description": "Valid api key value",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -121,11 +185,13 @@ func init() {
       "properties": {
         "email": {
           "description": "user email",
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "name": {
           "description": "user name",
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         }
       }
     }
@@ -168,6 +234,7 @@ func init() {
     "version": "0.0.1"
   },
   "host": "localhost:3001",
+  "basePath": "/api",
   "paths": {
     "/login": {
       "post": {
@@ -187,21 +254,23 @@ func init() {
               "properties": {
                 "name": {
                   "description": "user name",
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1
                 },
                 "password": {
                   "description": "valid password",
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1
                 }
               }
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "api token",
+          "200": {
+            "description": "The api token of the user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/ApiKey"
             }
           },
           "default": {
@@ -230,10 +299,74 @@ func init() {
             }
           }
         }
+      },
+      "put": {
+        "security": [],
+        "summary": "Add new user",
+        "parameters": [
+          {
+            "name": "newUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "email",
+                "password"
+              ],
+              "properties": {
+                "email": {
+                  "description": "user email",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "description": "user name",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "password": {
+                  "description": "valid password",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The api token of the new user",
+            "schema": {
+              "$ref": "#/definitions/ApiKey"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
       }
     }
   },
   "definitions": {
+    "ApiKey": {
+      "description": "Valid api key",
+      "type": "object",
+      "required": [
+        "apiKey"
+      ],
+      "properties": {
+        "apiKey": {
+          "description": "Valid api key value",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -261,11 +394,13 @@ func init() {
       "properties": {
         "email": {
           "description": "user email",
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "name": {
           "description": "user name",
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         }
       }
     }

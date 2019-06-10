@@ -8,7 +8,7 @@ Backend service
     Schemes:
       http
     Host: localhost:3001
-    BasePath: /
+    BasePath: /api
     Version: 0.0.1
 
     Consumes:

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/fpawel/mproducto/internal/assets"
 	"github.com/fpawel/mproducto/internal/def"
 	"net"
 	"net/http"
@@ -97,13 +98,56 @@ func makeAccessLog(basePath string) middlewareFunc {
 }
 
 func (svc *service) reauthenticate() middlewareFunc {
-	return func(handler http.Handler) http.Handler {
+
+	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if apiKey, f := r.Header["API-Key"]; f && len(apiKey) > 0 {
-				if apiKey, err := svc.app.Reauthenticate(apiKey[0]); err == nil {
-					w.Header()["API-Key"] = []string{apiKey}
+			defer next.ServeHTTP(w,r)
+			if len(w.Header().Get(def.HTTPHeaderApiKey)) > 0{
+				return
+			}
+			if apiKey := r.Header.Get(def.HTTPHeaderApiKey); len(apiKey) > 0 {
+				if apiKey, err := svc.app.Reauthenticate(apiKey); err == nil {
+					w.Header().Set(def.HTTPHeaderApiKey, apiKey)
 				}
 			}
 		})
 	}
+}
+
+
+func fileServer(apiBasePath string) middlewareFunc {
+	fs := assets.AssetFS()
+	fileServer := http.FileServer(fs)
+
+	isFilePath := func (path string) bool{
+		if path=="/" {
+			return true
+		}
+		_,err := fs.AssetInfo(strings.TrimPrefix(path, "/"))
+		return err == nil
+	}
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			uPath := r.URL.Path
+			if strings.HasPrefix(uPath, apiBasePath) {
+				next.ServeHTTP(w,r)
+				return
+			}
+
+			if !strings.HasPrefix(uPath, "/") {
+				uPath = "/" + uPath
+				r.URL.Path = uPath
+			}
+
+			if isFilePath(uPath) {
+				fileServer.ServeHTTP(w,r)
+				return
+			}
+
+			next.ServeHTTP(w,r)
+		})
+	}
+
+
 }

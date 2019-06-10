@@ -44,6 +44,9 @@ func NewMproductoAPI(spec *loads.Document) *MproductoAPI {
 		PostLoginHandler: PostLoginHandlerFunc(func(params PostLoginParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostLogin has not yet been implemented")
 		}),
+		PutUserHandler: PutUserHandlerFunc(func(params PutUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation PutUser has not yet been implemented")
+		}),
 
 		// Applies when the "API-Key" header is set
 		APIKeyAuth: func(token string) (*app.Auth, error) {
@@ -94,6 +97,8 @@ type MproductoAPI struct {
 	GetUserHandler GetUserHandler
 	// PostLoginHandler sets the operation handler for the post login operation
 	PostLoginHandler PostLoginHandler
+	// PutUserHandler sets the operation handler for the put user operation
+	PutUserHandler PutUserHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -167,6 +172,10 @@ func (o *MproductoAPI) Validate() error {
 
 	if o.PostLoginHandler == nil {
 		unregistered = append(unregistered, "PostLoginHandler")
+	}
+
+	if o.PutUserHandler == nil {
+		unregistered = append(unregistered, "PutUserHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -288,6 +297,11 @@ func (o *MproductoAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/login"] = NewPostLogin(o.context, o.PostLoginHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/user"] = NewPutUser(o.context, o.PutUserHandler)
 
 }
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/fpawel/mproducto/internal/api"
 	"github.com/fpawel/mproducto/internal/app"
+	"github.com/fpawel/mproducto/internal/assets"
 	"github.com/fpawel/mproducto/internal/data"
 	"github.com/fpawel/mproducto/internal/def"
 	"net/http"
@@ -64,6 +65,9 @@ func Init() {
 }
 
 func main() {
+
+
+
 	Init()
 	flag.Parse()
 
@@ -94,11 +98,13 @@ func main() {
 	if err != nil {
 		log.Panic("data base error: ", err)
 	}
-
 	defer log.ErrIfFail(db.Close)
+
+
 
 	a := app.New(db)
 
+	http.Handle("/", http.FileServer(assets.AssetFS()))
 	if err := api.Serve(log, a, cfg.api); err != nil {
 		log.Panic(err)
 	}

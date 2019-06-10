@@ -24,7 +24,7 @@ type User = data.User
 // App provides application features service.
 type App interface {
 	GetUser(Ctx, Log, Auth) (User, error)
-	AddNewUser(Ctx, Log, Auth, *User) error
+	AddNewUser(Ctx, Log, User) (string,error)
 	Authenticate(string) (*Auth, error)
 	Authorize(Auth) error
 	Login(ctx Ctx, log Log, name, pass string) (token string, err error)
@@ -69,10 +69,13 @@ func (app *app) GetUser(_ Ctx, _ Log, auth Auth) (User, error) {
 	return user, nil
 }
 
-func (app *app) AddNewUser(ctx Ctx, log Log, auth Auth, user *User) error {
+func (app *app) AddNewUser(ctx Ctx, log Log, user User) (string, error) {
 	user.Role = "regular_user"
 	user.UserID = 0
-	return data.AddNewUser(app.db, user)
+	if err := data.AddNewUser(app.db, &user); err != nil {
+		return "", err
+	}
+	return jwtTokenizeUserClaims(user.UserID, user.Pass)
 }
 
 func (app *app) Login(ctx Ctx, log Log, name, pass string) (string, error) {

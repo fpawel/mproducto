@@ -2,6 +2,7 @@ swagger: "2.0"
 schemes:
     - http
 host: localhost:3001
+basePath: /api
 consumes:
     - application/json
 produces:
@@ -36,15 +37,17 @@ paths:
                             name:
                                 type: string
                                 description: user name
+                                minLength: 1
                             password:
                                 type: string
                                 description: valid password
+                                minLength: 1
             responses:
                 default: {$ref: '#/responses/Error'}
-                '201':
-                    description: api token
+                '200':
+                    description: The api token of the user
                     schema:
-                        type: string
+                        $ref: '#/definitions/ApiKey'
     /user:
         get:
             summary: Show user profile
@@ -54,6 +57,39 @@ paths:
                     description: User profile
                     schema:
                         $ref: '#/definitions/User'
+        put:
+            security: []   # No security
+            summary: Add new user
+            parameters:
+                -   name: newUser
+                    in: body
+                    required: true
+                    schema:
+                        type: object
+                        required:
+                            - name
+                            - email
+                            - password
+                        properties:
+                            name:
+                                type: string
+                                description: user name
+                                minLength: 1
+                            email:
+                                type: string
+                                description: user email
+                                minLength: 1
+                            password:
+                                type: string
+                                description: valid password
+                                minLength: 1
+
+            responses:
+                default: {$ref: '#/responses/Error'}
+                '201':
+                    description: The api token of the new user
+                    schema:
+                        $ref: '#/definitions/ApiKey'
 
 
 responses:
@@ -79,6 +115,16 @@ definitions:
                 format: int32
             message:
                 type: string
+    ApiKey:
+        description: Valid api key
+        type: object
+        required:
+            - apiKey
+        properties:
+            apiKey:
+                type: string
+                description: Valid api key value
+                minLength: 1
     User:
         description: The profile of the user
         type: object
@@ -89,6 +135,8 @@ definitions:
             name:
                 type: string
                 description: user name
+                minLength: 1
             email:
                 type: string
                 description: user email
+                minLength: 1

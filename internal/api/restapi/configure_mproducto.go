@@ -54,6 +54,11 @@ func configureAPI(api *op.MproductoAPI) http.Handler {
 			return middleware.NotImplemented("operation .PostLogin has not yet been implemented")
 		})
 	}
+	if api.PutUserHandler == nil {
+		api.PutUserHandler = op.PutUserHandlerFunc(func(params op.PutUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation .PutUser has not yet been implemented")
+		})
+	}
 
 	api.ServerShutdown = func() {}
 
