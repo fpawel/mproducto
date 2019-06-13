@@ -90,8 +90,39 @@ paths:
                     description: The api token of the new user
                     schema:
                         $ref: '#/definitions/ApiKey'
+    /catalogue:
+        get:
+            security: []   # No security
+            summary: Show catalogue of products
+            responses:
+                default: {$ref: '#/responses/Error'}
+                '200':
+                    description: Catalogue of products
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/CatalogueNode'
+    /products:
+        get:
+            security: []   # No security
+            summary: Show products by tags
+            parameters:
+                -   in:       query
+                    name:     tags
+                    required: true
+                    type: array
+                    items:
+                        type: string
+                        minLength: 1
 
-
+            responses:
+                default: {$ref: '#/responses/Error'}
+                '200':
+                    description: Catalogue of products
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/Product'
 responses:
     # Return general errors using same model as used by go-swagger for validation errors.
     Error:
@@ -125,6 +156,7 @@ definitions:
                 type: string
                 description: Valid api key value
                 minLength: 1
+                x-isnullable: false
     User:
         description: The profile of the user
         type: object
@@ -136,7 +168,58 @@ definitions:
                 type: string
                 description: user name
                 minLength: 1
+                x-isnullable: false
             email:
                 type: string
                 description: user email
                 minLength: 1
+                x-isnullable: false
+    CatalogueNode:
+        description: The catalogue of products
+        type: object
+        required:
+            - id
+            - name
+            - tags
+            - nodes
+        properties:
+            id:
+                type: integer
+                format: int32
+                description: node id
+                minimum: 1
+                x-isnullable: false
+            name:
+                type: string
+                description: The title of catalogue
+                minLength: 1
+                x-isnullable: false
+            tags:
+                description: The tags list of products
+                type: array
+                items:
+                    type: string
+                    minLength: 1
+            nodes:
+                description: Subcatalogues of this catalogue
+                type: array
+                items:
+                    $ref: '#/definitions/CatalogueNode'
+    Product:
+        type: object
+        description: Product
+        required:
+            - name
+            - id
+        properties:
+            name:
+                type: string
+                description: product name
+                minLength: 1
+                x-isnullable: false
+            id:
+                type: integer
+                format: int64
+                description: product id
+                minimum: 1
+                x-isnullable: false

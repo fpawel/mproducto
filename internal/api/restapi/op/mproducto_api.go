@@ -38,6 +38,12 @@ func NewMproductoAPI(spec *loads.Document) *MproductoAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		GetCatalogueHandler: GetCatalogueHandlerFunc(func(params GetCatalogueParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetCatalogue has not yet been implemented")
+		}),
+		GetProductsHandler: GetProductsHandlerFunc(func(params GetProductsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetProducts has not yet been implemented")
+		}),
 		GetUserHandler: GetUserHandlerFunc(func(params GetUserParams, principal *app.Auth) middleware.Responder {
 			return middleware.NotImplemented("operation GetUser has not yet been implemented")
 		}),
@@ -93,6 +99,10 @@ type MproductoAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
+	// GetCatalogueHandler sets the operation handler for the get catalogue operation
+	GetCatalogueHandler GetCatalogueHandler
+	// GetProductsHandler sets the operation handler for the get products operation
+	GetProductsHandler GetProductsHandler
 	// GetUserHandler sets the operation handler for the get user operation
 	GetUserHandler GetUserHandler
 	// PostLoginHandler sets the operation handler for the post login operation
@@ -164,6 +174,14 @@ func (o *MproductoAPI) Validate() error {
 
 	if o.APIKeyAuth == nil {
 		unregistered = append(unregistered, "APIKeyAuth")
+	}
+
+	if o.GetCatalogueHandler == nil {
+		unregistered = append(unregistered, "GetCatalogueHandler")
+	}
+
+	if o.GetProductsHandler == nil {
+		unregistered = append(unregistered, "GetProductsHandler")
 	}
 
 	if o.GetUserHandler == nil {
@@ -287,6 +305,16 @@ func (o *MproductoAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/catalogue"] = NewGetCatalogue(o.context, o.GetCatalogueHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/products"] = NewGetProducts(o.context, o.GetProductsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

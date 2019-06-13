@@ -148,6 +148,19 @@ func fileServer(apiBasePath string) middlewareFunc {
 			next.ServeHTTP(w,r)
 		})
 	}
-
-
 }
+
+//func renderJSON(w http.ResponseWriter, r *http.Request, data interface{}) {
+//	gz, err := gzip.NewWriterLevel(w, gzip.BestCompression)
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	log := structlog.FromContext(r.Context(), nil)
+//	defer log.ErrIfFail(gz.Close)
+//	w.Header().Set("Content-Encoding", "gzip")
+//	w.Header().Set("Content-Type", "application/json")
+//	encoder := json.NewEncoder(gz)
+//	encoder.SetIndent("", "    ")
+//	must.Encode(encoder, data)
+//}

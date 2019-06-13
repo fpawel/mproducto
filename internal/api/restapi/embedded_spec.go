@@ -36,6 +36,26 @@ func init() {
   "host": "localhost:3001",
   "basePath": "/api",
   "paths": {
+    "/catalogue": {
+      "get": {
+        "security": [],
+        "summary": "Show catalogue of products",
+        "responses": {
+          "200": {
+            "description": "Catalogue of products",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CatalogueNode"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "security": [],
@@ -71,6 +91,38 @@ func init() {
             "description": "The api token of the user",
             "schema": {
               "$ref": "#/definitions/ApiKey"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "security": [],
+        "summary": "Show products by tags",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "name": "tags",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catalogue of products",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
             }
           },
           "default": {
@@ -154,7 +206,48 @@ func init() {
         "apiKey": {
           "description": "Valid api key value",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "x-isnullable": false
+        }
+      }
+    },
+    "CatalogueNode": {
+      "description": "The catalogue of products",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "tags",
+        "nodes"
+      ],
+      "properties": {
+        "id": {
+          "description": "node id",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "x-isnullable": false
+        },
+        "name": {
+          "description": "The title of catalogue",
+          "type": "string",
+          "minLength": 1,
+          "x-isnullable": false
+        },
+        "nodes": {
+          "description": "Subcatalogues of this catalogue",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CatalogueNode"
+          }
+        },
+        "tags": {
+          "description": "The tags list of products",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -175,6 +268,29 @@ func init() {
         }
       }
     },
+    "Product": {
+      "description": "Product",
+      "type": "object",
+      "required": [
+        "name",
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "product id",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "x-isnullable": false
+        },
+        "name": {
+          "description": "product name",
+          "type": "string",
+          "minLength": 1,
+          "x-isnullable": false
+        }
+      }
+    },
     "User": {
       "description": "The profile of the user",
       "type": "object",
@@ -186,12 +302,14 @@ func init() {
         "email": {
           "description": "user email",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "x-isnullable": false
         },
         "name": {
           "description": "user name",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "x-isnullable": false
         }
       }
     }
@@ -236,6 +354,29 @@ func init() {
   "host": "localhost:3001",
   "basePath": "/api",
   "paths": {
+    "/catalogue": {
+      "get": {
+        "security": [],
+        "summary": "Show catalogue of products",
+        "responses": {
+          "200": {
+            "description": "Catalogue of products",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CatalogueNode"
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "security": [],
@@ -271,6 +412,41 @@ func init() {
             "description": "The api token of the user",
             "schema": {
               "$ref": "#/definitions/ApiKey"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "security": [],
+        "summary": "Show products by tags",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "name": "tags",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catalogue of products",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
             }
           },
           "default": {
@@ -363,7 +539,48 @@ func init() {
         "apiKey": {
           "description": "Valid api key value",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "x-isnullable": false
+        }
+      }
+    },
+    "CatalogueNode": {
+      "description": "The catalogue of products",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "tags",
+        "nodes"
+      ],
+      "properties": {
+        "id": {
+          "description": "node id",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "x-isnullable": false
+        },
+        "name": {
+          "description": "The title of catalogue",
+          "type": "string",
+          "minLength": 1,
+          "x-isnullable": false
+        },
+        "nodes": {
+          "description": "Subcatalogues of this catalogue",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CatalogueNode"
+          }
+        },
+        "tags": {
+          "description": "The tags list of products",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -384,6 +601,29 @@ func init() {
         }
       }
     },
+    "Product": {
+      "description": "Product",
+      "type": "object",
+      "required": [
+        "name",
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "product id",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "x-isnullable": false
+        },
+        "name": {
+          "description": "product name",
+          "type": "string",
+          "minLength": 1,
+          "x-isnullable": false
+        }
+      }
+    },
     "User": {
       "description": "The profile of the user",
       "type": "object",
@@ -395,12 +635,14 @@ func init() {
         "email": {
           "description": "user email",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "x-isnullable": false
         },
         "name": {
           "description": "user name",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "x-isnullable": false
         }
       }
     }

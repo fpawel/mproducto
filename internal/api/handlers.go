@@ -8,7 +8,9 @@ import (
 	"github.com/fpawel/mproducto/internal/data"
 	"github.com/fpawel/mproducto/internal/def"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/powerman/must"
 	"github.com/powerman/structlog"
+	"gopkg.in/yaml.v2"
 	"net/http"
 )
 
@@ -19,8 +21,8 @@ func (svc *service) getUser(params op.GetUserParams, auth *app.Auth) middleware.
 		return defError(err, op.NewGetUserDefault(0)).(middleware.Responder)
 	}
 	return op.NewGetUserOK().WithPayload(&model.User{
-		Name:  &user.Name,
-		Email: &user.Email,
+		Name:  user.Name,
+		Email: user.Email,
 	})
 }
 
@@ -36,7 +38,7 @@ func (svc *service) putUser(params op.PutUserParams) middleware.Responder {
 	if err != nil {
 		return defError(err, op.NewPutUserDefault(0)).(middleware.Responder)
 	}
-	return op.NewPutUserCreated().WithPayload(&model.APIKey{APIKey:&token})
+	return op.NewPutUserCreated().WithPayload(&model.APIKey{APIKey:token})
 }
 
 func (svc *service) postLogin(params op.PostLoginParams) middleware.Responder {
@@ -45,7 +47,23 @@ func (svc *service) postLogin(params op.PostLoginParams) middleware.Responder {
 	if err != nil {
 		return defError(err, op.NewPostLoginDefault(0)).(middleware.Responder)
 	}
-	return op.NewPostLoginOK().WithPayload(&model.APIKey{APIKey:&token})
+	return op.NewPostLoginOK().WithPayload(&model.APIKey{APIKey:token})
+}
+
+func (svc *service) getCatalogue(params op.GetCatalogueParams) middleware.Responder {
+
+	b := must.ReadFile("catalogue.yml")
+	r := op.NewGetCatalogueOK()
+	must.AbortIf(yaml.Unmarshal(b, &r.Payload))
+	id := 1
+	for i := range r.Payload{
+		r.Payload[i].SetID(&id)
+	}
+	return r
+}
+
+func (svc *service) getProducts(params op.GetProductsParams) middleware.Responder {
+	return op.NewGetProductsOK().WithPayload( svc.app.GetProductsByTags(params.Tags) )
 }
 
 func (svc *service) fromRequestWithAuth(r *http.Request, auth *app.Auth) (context.Context, *structlog.Logger) {

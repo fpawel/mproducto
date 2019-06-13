@@ -20,7 +20,7 @@ type APIKey struct {
 	// Valid api key value
 	// Required: true
 	// Min Length: 1
-	APIKey *string `json:"apiKey"`
+	APIKey string `json:"apiKey"`
 }
 
 // Validate validates this Api key
@@ -39,11 +39,11 @@ func (m *APIKey) Validate(formats strfmt.Registry) error {
 
 func (m *APIKey) validateAPIKey(formats strfmt.Registry) error {
 
-	if err := validate.Required("apiKey", "body", m.APIKey); err != nil {
+	if err := validate.RequiredString("apiKey", "body", string(m.APIKey)); err != nil {
 		return err
 	}
 
-	if err := validate.MinLength("apiKey", "body", string(*m.APIKey), 1); err != nil {
+	if err := validate.MinLength("apiKey", "body", string(m.APIKey), 1); err != nil {
 		return err
 	}
 

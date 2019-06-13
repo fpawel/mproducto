@@ -41,6 +41,8 @@ func Serve(log *structlog.Logger, application app.App, cfg Config) error {
 	api.GetUserHandler = op.GetUserHandlerFunc(svc.getUser)
 	api.PostLoginHandler = op.PostLoginHandlerFunc(svc.postLogin)
 	api.PutUserHandler = op.PutUserHandlerFunc(svc.putUser)
+	api.GetCatalogueHandler = op.GetCatalogueHandlerFunc(svc.getCatalogue)
+	api.GetProductsHandler = op.GetProductsHandlerFunc(svc.getProducts)
 
 	server := restapi.NewServer(api)
 	defer log.WarnIfFail(server.Shutdown)

@@ -44,6 +44,16 @@ func configureAPI(api *op.MproductoAPI) http.Handler {
 	//
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
+	if api.GetCatalogueHandler == nil {
+		api.GetCatalogueHandler = op.GetCatalogueHandlerFunc(func(params op.GetCatalogueParams) middleware.Responder {
+			return middleware.NotImplemented("operation .GetCatalogue has not yet been implemented")
+		})
+	}
+	if api.GetProductsHandler == nil {
+		api.GetProductsHandler = op.GetProductsHandlerFunc(func(params op.GetProductsParams) middleware.Responder {
+			return middleware.NotImplemented("operation .GetProducts has not yet been implemented")
+		})
+	}
 	if api.GetUserHandler == nil {
 		api.GetUserHandler = op.GetUserHandlerFunc(func(params op.GetUserParams, principal *app.Auth) middleware.Responder {
 			return middleware.NotImplemented("operation .GetUser has not yet been implemented")

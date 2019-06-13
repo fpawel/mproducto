@@ -13,9 +13,9 @@ func ReadCatalogueNodes() (result []CatalogueNode) {
 }
 
 type CatalogueNode struct {
-	Title string
-	Tags  []string
-	Nodes []CatalogueNode
+	Title string          `json:"title"`
+	Tags  []string        `json:"tags"`
+	Nodes []CatalogueNode `json:"nodes"`
 }
 
 func (u *CatalogueNode) UnmarshalYAML(unmarshal func(interface{}) error) error {

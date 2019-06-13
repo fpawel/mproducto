@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/fpawel/mproducto/internal/api/model"
 	"github.com/fpawel/mproducto/internal/data"
 	"github.com/jmoiron/sqlx"
 	"github.com/powerman/structlog"
@@ -29,6 +30,7 @@ type App interface {
 	Authorize(Auth) error
 	Login(ctx Ctx, log Log, name, pass string) (token string, err error)
 	Reauthenticate(apiKey string) (string, error)
+	GetProductsByTags(tags []string) (products []*model.Product)
 }
 
 // New return new application.
@@ -97,6 +99,14 @@ func (app *app) Reauthenticate(apiKey string) (string, error) {
 		return "", err
 	}
 	return jwtTokenizeUserClaims(userID, pass)
+}
+
+func (app *app) GetProductsByTags(tags []string) (products []*model.Product) {
+
+	for _,p := range  data.GetProductsByTags(app.db, tags){
+		products = append(products, &model.Product{Name:p.Name, ID:p.ID})
+	}
+	return
 }
 
 var _ App = (*app)(nil)
