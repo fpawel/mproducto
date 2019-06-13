@@ -8,6 +8,6 @@ import (
 
 func TestReadCatalogueNodes(t *testing.T) {
 	xs := ReadCatalogueNodes()
-	b,_ := json.MarshalIndent(xs, "", "    ")
+	b, _ := json.MarshalIndent(xs, "", "    ")
 	fmt.Println(string(b))
 }
